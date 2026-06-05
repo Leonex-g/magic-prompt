@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Turn weak prompts into precise, magic prompts. A structured formula for better AI results.">
+<meta property="og:title" content="PromptForge — Weak to Magic Prompt Builder">
+<meta property="og:description" content="A structured formula that turns vague instructions into precise AI commands.">
+<title>PromptForge — Weak to Magic Prompt Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-behavior: smooth; }
+img, svg { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; }
+
+/* ─── Tokens ─────────────────────────────── */
+:root {
+  --white:   #ffffff;
+  --off:     #f7f6f3;
+  --line:    #e8e6e0;
+  --muted:   #9b9890;
+  --dim:     #c8c5bc;
+  --ink:     #1a1916;
+  --ink2:    #3d3c38;
+  --accent:  #1a1916;   /* single accent = ink itself */
+  --mark:    #f0ece2;   /* soft warm highlight */
+  --r:       10px;
+  --r-lg:    16px;
+  --r-pill:  100px;
+  --shadow:  0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-lg: 0 2px 8px rgba(0,0,0,0.08), 0 12px 40px rgba(0,0,0,0.06);
+  --max:     760px;
+  --gap:     clamp(1rem, 4vw, 2rem);
+}
+
+/* ─── Base ─────────────────────────────── */
+body {
+  background: var(--white);
+  color: var(--ink);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.65;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Nav ─────────────────────────────── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  padding: 0 var(--gap);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: 'Lora', serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.logo-sep { color: var(--dim); margin: 0 1px; }
+
+.nav-pill {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 3px 12px;
+}
+
+/* ─── Hero ─────────────────────────────── */
+.hero {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: clamp(3rem, 10vw, 5.5rem) var(--gap) clamp(2rem, 6vw, 3rem);
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  animation: up 0.5s ease both;
+}
+
+.eyebrow::before, .eyebrow::after {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background: var(--dim);
+}
+
+h1 {
+  font-family: 'Lora', serif;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  animation: up 0.5s 0.08s ease both;
+}
+
+h1 em {
+  font-style: italic;
+  color: var(--ink2);
+}
+
+.hero-sub {
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  color: var(--muted);
+  max-width: 480px;
+  margin: 0 auto 2rem;
+  font-weight: 300;
+  animation: up 0.5s 0.16s ease both;
+}
+
+/* ─── Formula ─────────────────────────────── */
+.formula {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+  animation: up 0.5s 0.22s ease both;
+}
+
+.ftag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  color: var(--ink2);
+  background: var(--off);
+  letter-spacing: 0.02em;
+}
+
+.f-sep { font-size: 12px; color: var(--dim); }
+.f-eq  { font-size: 14px; color: var(--dim); font-weight: 300; }
+
+.f-result {
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--ink);
+}
+
+/* ─── Divider ─────────────────────────────── */
+.divider {
+  max-width: var(--max);
+  margin: 2.5rem auto 0;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ─── Main ─────────────────────────────── */
+main {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 3rem) var(--gap) clamp(3rem, 10vw, 5rem);
+}
+
+/* ─── Section labels ─────────────────────────────── */
+.s-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.s-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ─── Fields ─────────────────────────────── */
+.field { margin-bottom: 1rem; }
+
+.field > label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink2);
+  margin-bottom: 6px;
+}
+
+.tag {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: var(--off);
+  letter-spacing: 0.02em;
+}
+
+textarea, input[type="text"], select {
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  color: var(--ink);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+textarea:hover, input[type="text"]:hover, select:hover {
+  border-color: var(--dim);
+}
+
+textarea:focus, input[type="text"]:focus, select:focus {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(26,25,22,0.06);
+}
+
+textarea::placeholder, input::placeholder { color: var(--dim); }
+textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239b9890' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+select option { background: #fff; color: var(--ink); }
+
+.weak-input {
+  border: 1.5px solid var(--line);
+  min-height: 90px;
+  font-size: 15px;
+  background: var(--off);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+}
+
+.weak-input:focus {
+  background: var(--white);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(26,25,22,0.06);
+}
+
+/* ─── Grid ─────────────────────────────── */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 520px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ─── Buttons ─────────────────────────────── */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ink);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r);
+  padding: 12px 24px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
+}
+
+.btn-primary:hover { opacity: 0.82; }
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 11px 18px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
+}
+
+.btn-ghost:hover { border-color: var(--dim); color: var(--ink2); }
+
+.btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 36px;
+}
+
+.btn-sm:hover { border-color: var(--dim); color: var(--ink); }
+.btn-sm.done  { border-color: #b8d8c0; color: #3a7a4a; background: #f0f7f1; }
+
+/* ─── Output ─────────────────────────────── */
+.output-wrap {
+  display: none;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+  animation: up 0.35s ease both;
+}
+
+.output-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.output-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink2);
+}
+
+.output-box {
+  background: var(--off);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1.25rem 1.5rem;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ─── How it works ─────────────────────────────── */
+.how {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gap) clamp(3rem, 10vw, 5rem);
+}
+
+.how-head {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.how-head h2 {
+  font-family: 'Lora', serif;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+}
+
+.how-head p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .steps { grid-template-columns: 1fr; }
+}
+
+.step {
+  background: var(--white);
+  padding: 1.5rem;
+  transition: background 0.18s;
+}
+
+.step:hover { background: var(--off); }
+
+.step-n {
+  font-family: 'Lora', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--dim);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.step h3 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.01em;
+}
+
+.step p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ─── Footer ─────────────────────────────── */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 1.5rem var(--gap);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.foot-logo {
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.foot-copy {
+  font-size: 12px;
+  color: var(--dim);
+}
+
+/* ─── Animations ─────────────────────────────── */
+@keyframes up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Accessibility ─────────────────────────────── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Print ─────────────────────────────── */
+@media print {
+  nav, .btn-row, .btn-sm, footer { display: none; }
+  body { color: #000; }
+  .output-wrap { display: block !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav role="banner">
+  <div class="logo">Prompt<span class="logo-sep">·</span>Forge</div>
+  <span class="nav-pill" aria-label="Version: Beta">Beta</span>
+</nav>
+
+<!-- Hero -->
+<header class="hero" role="main" aria-labelledby="main-heading">
+  <h2 class="sr-only">PromptForge — AI Prompt Engineering Tool</h2>
+  <p class="eyebrow" aria-hidden="true">Prompt Engineering</p>
+  <h1 id="main-heading">Turn weak prompts into<br><em>magic prompts</em></h1>
+  <p class="hero-sub">A six-part formula that transforms vague instructions into precise, consistent AI commands — every time.</p>
+
+  <div class="formula" role="list" aria-label="Prompt formula">
+    <span class="ftag" role="listitem">Role</span>
+    <span class="f-sep" aria-hidden="true">+</span>
+    <span class="ftag" role="listitem">Task</span>
+    <span class="f-sep" aria-hidden="true">+</span>
+    <span class="ftag" role="listitem">Context</span>
+    <span class="f-sep" aria-hidden="true">+</span>
+    <span class="ftag" role="listitem">Format</span>
+    <span class="f-sep" aria-hidden="true">+</span>
+    <span class="ftag" role="listitem">Tone</span>
+    <span class="f-eq" aria-hidden="true">=</span>
+    <span class="f-result" aria-label="Result: Magic prompt">✦ Magic prompt</span>
+  </div>
+</header>
+
+<div class="divider" aria-hidden="true"></div>
+
+<!-- Builder -->
+<main id="builder" aria-label="Prompt builder">
+
+  <!-- Weak prompt -->
+  <div class="field" style="margin-bottom:1.5rem">
+    <label for="weak">
+      Your weak prompt
+      <span class="tag">Start here</span>
+    </label>
+    <textarea
+      id="weak"
+      class="weak-input"
+      placeholder="e.g. write me an email about my product launch…"
+      aria-required="true"
+      autocomplete="off"
+      spellcheck="true"
+    ></textarea>
+  </div>
+
+  <p class="s-label">Ingredients</p>
+
+  <div class="grid-2">
+    <div class="field">
+      <label for="role">Role / Persona <span class="tag">Who</span></label>
+      <input type="text" id="role" placeholder="e.g. expert copywriter" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="tone">Tone <span class="tag">Voice</span></label>
+      <select id="tone" aria-label="Select tone">
+        <option value="">— select —</option>
+        <option>Professional</option>
+        <option>Casual &amp; friendly</option>
+        <option>Persuasive</option>
+        <option>Concise &amp; direct</option>
+        <option>Empathetic</option>
+        <option>Creative &amp; bold</option>
+        <option>Academic</option>
+        <option>Humorous</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="ctx">Context <span class="tag">Why &amp; who for</span></label>
+    <textarea id="ctx" placeholder="e.g. SaaS tool for small businesses, non-technical audience" style="min-height:64px" autocomplete="off" spellcheck="true"></textarea>
+  </div>
+
+  <div class="grid-2">
+    <div class="field">
+      <label for="fmt">Output format <span class="tag">Structure</span></label>
+      <select id="fmt" aria-label="Select output format">
+        <option value="">— select —</option>
+        <option>Short paragraph (3–5 sentences)</option>
+        <option>Bullet points</option>
+        <option>Numbered steps</option>
+        <option>Full email with subject</option>
+        <option>Table</option>
+        <option>Detailed long-form</option>
+        <option>Code with comments</option>
+        <option>Social media post</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="avoid">Constraint / Avoid</label>
+      <input type="text" id="avoid" placeholder="e.g. no jargon, under 200 words" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-primary" onclick="buildPrompt()" aria-label="Build magic prompt">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Build magic prompt
+    </button>
+    <button class="btn-ghost" onclick="clearAll()" aria-label="Clear all fields">Clear</button>
+  </div>
+
+  <!-- Output -->
+  <div class="output-wrap" id="outputWrap" aria-live="polite" aria-label="Generated magic prompt">
+    <div class="output-head">
+      <span class="output-lbl">✦ Magic prompt</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sm" id="copyBtn" onclick="copyPrompt()" aria-label="Copy prompt to clipboard">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+    </div>
+    <div class="output-box" id="output" role="region" aria-label="Generated prompt text"></div>
+  </div>
+</main>
+
+<!-- How it works -->
+<section class="how" aria-labelledby="how-heading">
+  <div class="how-head">
+    <h2 id="how-heading">How it works</h2>
+    <p>Six ingredients. One formula. Consistently better output.</p>
+  </div>
+  <div class="steps" role="list">
+    <article class="step" role="listitem">
+      <div class="step-n">01</div>
+      <h3>Role</h3>
+      <p>Primes the AI with the right knowledge, vocabulary, and mindset before it writes a single word.</p>
+    </article>
+    <article class="step" role="listitem">
+      <div class="step-n">02</div>
+      <h3>Task</h3>
+      <p>Sharpens your original request so the AI understands the exact deliverable expected.</p>
+    </article>
+    <article class="step" role="listitem">
+      <div class="step-n">03</div>
+      <h3>Context</h3>
+      <p>Removes guesswork — who it's for, why it matters, and any domain knowledge needed.</p>
+    </article>
+    <article class="step" role="listitem">
+      <div class="step-n">04</div>
+      <h3>Format</h3>
+      <p>Controls structure so you get bullets when you need bullets, not walls of text.</p>
+    </article>
+    <article class="step" role="listitem">
+      <div class="step-n">05</div>
+      <h3>Tone</h3>
+      <p>Sets the register — professional, casual, bold — matching your audience's expectations.</p>
+    </article>
+    <article class="step" role="listitem">
+      <div class="step-n">06</div>
+      <h3>Constraint</h3>
+      <p>Telling the AI what to avoid is just as powerful as telling it what to do.</p>
+    </article>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer role="contentinfo">
+  <span class="foot-logo">Prompt·Forge</span>
+  <span class="foot-copy">&copy; 2026 &nbsp;·&nbsp; Built for precision</span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var lastPrompt = '';
+
+  function buildPrompt() {
+    var weak  = document.getElementById('weak').value.trim();
+    var role  = document.getElementById('role').value.trim();
+    var tone  = document.getElementById('tone').value;
+    var ctx   = document.getElementById('ctx').value.trim();
+    var fmt   = document.getElementById('fmt').value;
+    var avoid = document.getElementById('avoid').value.trim();
+
+    if (!weak) {
+      var ta = document.getElementById('weak');
+      ta.focus();
+      ta.style.borderColor = '#d47a7a';
+      ta.setAttribute('aria-invalid', 'true');
+      setTimeout(function () {
+        ta.style.borderColor = '';
+        ta.removeAttribute('aria-invalid');
+      }, 1600);
+      return;
+    }
+
+    var parts = [];
+    if (role)  parts.push('You are a ' + role + '.');
+    parts.push('Task: ' + weak.charAt(0).toUpperCase() + weak.slice(1) + '.');
+    if (ctx)   parts.push('Context: ' + ctx + '.');
+    if (tone)  parts.push('Tone: ' + tone + '.');
+    if (fmt)   parts.push('Format: ' + fmt + '.');
+    if (avoid) parts.push('Avoid: ' + avoid + '.');
+    parts.push('Be specific and accurate. Skip filler. Deliver exactly what is asked.');
+
+    lastPrompt = parts.join('\n');
+
+    var wrap = document.getElementById('outputWrap');
+    var box  = document.getElementById('output');
+
+    box.textContent = '';
+    wrap.style.display = 'block';
+
+    // Typewriter
+    var i = 0;
+    var speed = Math.max(8, Math.min(18, Math.floor(12000 / lastPrompt.length)));
+    var timer = setInterval(function () {
+      box.textContent = lastPrompt.slice(0, i);
+      i += 2;
+      if (i > lastPrompt.length) {
+        box.textContent = lastPrompt;
+        clearInterval(timer);
+      }
+    }, speed);
+
+    setTimeout(function () {
+      wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 120);
+  }
+
+  function copyPrompt() {
+    if (!lastPrompt) return;
+    var btn = document.getElementById('copyBtn');
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastPrompt).then(function () { showCopied(btn); });
+    } else {
+      // Fallback for older browsers
+      var ta = document.createElement('textarea');
+      ta.value = lastPrompt;
+      ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try { document.execCommand('copy'); showCopied(btn); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  }
+
+  function showCopied(btn) {
+    btn.classList.add('done');
+    btn.innerHTML = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+    setTimeout(function () {
+      btn.classList.remove('done');
+      btn.innerHTML = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
+    }, 2200);
+  }
+
+  function clearAll() {
+    ['weak','role','ctx','avoid'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('tone').value = '';
+    document.getElementById('fmt').value  = '';
+    document.getElementById('outputWrap').style.display = 'none';
+    lastPrompt = '';
+    document.getElementById('weak').focus();
+  }
+
+  // Enter key on single-line inputs
+  document.querySelectorAll('input[type="text"]').forEach(function(el) {
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); buildPrompt(); }
+    });
+  });
+
+  // Expose globally
+  window.buildPrompt = buildPrompt;
+  window.copyPrompt  = copyPrompt;
+  window.clearAll    = clearAll;
+})();
+</script>
+</body>
+</html>
